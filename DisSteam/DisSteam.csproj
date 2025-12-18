@@ -7,4 +7,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="4.5.1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.1" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.1" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.1" />
+    <PackageReference Include="RestSharp" Version="113.0.0" />
+  </ItemGroup>
+
 </Project>
