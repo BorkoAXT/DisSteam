@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
+using DisSteam.Commands;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Newtonsoft.Json;
 using RestSharp;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -16,10 +18,6 @@ namespace DisSteam
         private static DiscordConfiguration _config { get; set; }
 
         private static DiscordClient _client;
-
-        private static CommandsNextConfiguration _cnc;
-
-        private static CommandsNextExtension _cne;
 
         private static Token _token;
 
@@ -44,22 +42,20 @@ namespace DisSteam
                 AutoReconnect = true,
                 TokenType = TokenType.Bot,
                 Token = _token.token,
-                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.Guilds
             };
             _client = new DiscordClient(_config);
 
             _activity = new DiscordActivity("with Steam APIs!", ActivityType.Playing);
 
-            _cnc = new CommandsNextConfiguration() { StringPrefixes = new[] { "/" } };
-            _cne = _client.UseCommandsNext(_cnc);
+            var slash = _client.UseSlashCommands();
 
-            _cne.RegisterCommands(typeof(Program).Assembly);
+            ulong guidId = 1405637361014013982;
+            slash.RegisterCommands<GetInfoCommand>(guidId);
 
             await _client.ConnectAsync(_activity, UserStatus.Online);
 
             await Task.Delay(-1, _cts.Token);
-
-
         }
     }
 }
