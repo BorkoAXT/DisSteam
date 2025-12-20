@@ -19,7 +19,11 @@ namespace DisSteam
 
         private static DiscordClient _client;
 
-        private static Token _token;
+        private static string? _token;
+
+        private static ulong guidId = 1405637361014013982;
+
+        public static Dictionary<string, string> Connects { get; set; }
 
         private static DiscordActivity _activity;
 
@@ -30,10 +34,8 @@ namespace DisSteam
 
         public static async Task Main(string[] args)
         {
-            
-            string? json = File.ReadAllText("C:\\Users\\borko\\source\\repos\\New folder\\DisSteam\\DisSteam\\config.json");
-            _token = JsonSerializer.Deserialize<Token>(json);
-            
+
+            _token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
             
             _cts = new CancellationTokenSource();
 
@@ -41,7 +43,7 @@ namespace DisSteam
             {
                 AutoReconnect = true,
                 TokenType = TokenType.Bot,
-                Token = _token.token,
+                Token = _token,
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.Guilds
             };
             _client = new DiscordClient(_config);
@@ -50,8 +52,9 @@ namespace DisSteam
 
             var slash = _client.UseSlashCommands();
 
-            ulong guidId = 1405637361014013982;
-            slash.RegisterCommands<GetInfoCommand>(guidId);
+            slash.RegisterCommands<ConnectCommand>(guidId);
+            slash.RegisterCommands<WhoAmICommand>(guidId);
+            slash.RegisterCommands<UnlinkCommand>(guidId);
 
             await _client.ConnectAsync(_activity, UserStatus.Online);
 
