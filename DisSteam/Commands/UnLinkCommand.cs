@@ -11,23 +11,31 @@ namespace DisSteam.Commands
         [SlashCommand("unlink", "Unlinks your Steam account from your Discord account.")]
         public async Task Unlink(InteractionContext context)
         {
-            await context.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
+            await context.CreateResponseAsync(
+                DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
 
-            var existing = _store.GetSteamId64(context.User.Id);
-            if (existing == null)
+            var steamId64 = _store.GetSteamId64(context.User.Id);
+            if (steamId64 == null)
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have no linked Steam account."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("You have no linked Steam account."));
                 return;
             }
 
-            bool removed = _store.Unlink(context.User.Id);
-            if (!removed)
+            if (!_store.Unlink(context.User.Id))
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Failed to unlink. Please try again."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("Failed to unlink your Steam account. Please try again."));
                 return;
             }
 
-            await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Unlinked SteamID64 `{existing}`."));
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle("Steam account unlinked")
+                .AddField("SteamID64", steamId64, true)
+                .WithFooter($"Requested by {context.User.Username}");
+
+            await context.EditResponseAsync(
+                new DiscordWebhookBuilder().AddEmbed(embed));
         }
     }
 }

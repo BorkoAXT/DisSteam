@@ -1,15 +1,18 @@
-﻿using System.Text.Json;
-using DisSteam.Data;
+﻿using DisSteam.Data;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using RestSharp;
+using Steam.Models.SteamCommunity;
+using SteamWebAPI2.Interfaces;
+using SteamWebAPI2.Utilities;
 
 namespace DisSteam.Commands
 {
     public sealed class ConnectCommand : ApplicationCommandModule
     {
         private static readonly LinkStore _store = new LinkStore("links.db");
-        private static readonly string SteamAPIKey = Environment.GetEnvironmentVariable("STEAM_API_KEY");
+        private static readonly string? SteamAPIKey = Environment.GetEnvironmentVariable("STEAM_API_KEY");
+        private static readonly SteamWebInterfaceFactory _factory =
+            new SteamWebInterfaceFactory(SteamAPIKey);
 
         [SlashCommand("connect", "Connects a discord account to a steam account")]
         public async Task Connect(
@@ -20,72 +23,73 @@ namespace DisSteam.Commands
 
             if (string.IsNullOrWhiteSpace(SteamAPIKey))
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Steam API key is not configured."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("Steam API key is not configured."));
                 return;
             }
 
-            if (!long.TryParse(steamId, out var steamId64))
+            if (!ulong.TryParse(steamId, out var steamId64))
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("SteamID must be a number."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("SteamID must be a number."));
                 return;
             }
 
-            if (steamId64 < 76561190000000000L)
+            if (steamId64 < 76561190000000000UL)
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Invalid SteamID64."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("Invalid SteamID64."));
                 return;
             }
 
             var existingSteamIdForUser = _store.GetSteamId64(context.User.Id);
             if (existingSteamIdForUser != null)
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"You already linked SteamID64 `{existingSteamIdForUser}`."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent($"You already linked SteamID64 `{existingSteamIdForUser}`."));
                 return;
             }
 
             if (_store.SteamIdExists(steamId64.ToString()))
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("That SteamID64 is already linked to another Discord user."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("That SteamID64 is already linked to another Discord user."));
                 return;
             }
 
-            var client = new RestClient();
-            var request = new RestRequest("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/", Method.Get);
-            request.AddQueryParameter("key", SteamAPIKey);
-            request.AddQueryParameter("steamids", steamId64.ToString());
-
-            RestResponse response;
+            PlayerSummaryModel? summary;
             try
             {
-                response = await client.ExecuteAsync(request);
+                var steamUser = _factory.CreateSteamWebInterface<SteamUser>(new HttpClient());
+                var resp = await steamUser.GetPlayerSummaryAsync(steamId64);
+
+                summary = resp?.Data;
             }
-            catch
+            catch (Exception)
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Steam request failed (network error)."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("Steam request failed (network/API error)."));
                 return;
             }
 
-            if (!response.IsSuccessful || string.IsNullOrWhiteSpace(response.Content))
+            if (summary == null)
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Steam API error: {(int)response.StatusCode} {response.StatusDescription}"));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("No Steam user found with that SteamID64."));
                 return;
             }
 
-            using var document = JsonDocument.Parse(response.Content);
-            var players = document.RootElement.GetProperty("response").GetProperty("players");
+            var personaName = string.IsNullOrWhiteSpace(summary.Nickname) ? "Unknown" : summary.Nickname;
+            var profileUrl = summary.ProfileUrl ?? string.Empty;
+            var avatarUrl = summary.AvatarFullUrl ?? string.Empty;
 
-            if (players.GetArrayLength() == 0)
-            {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("No Steam user found with that SteamID64."));
-                return;
-            }
-
-            var player = players[0];
-            string personaName = player.GetProperty("personaname").GetString() ?? "Unknown";
-            string profileUrl = player.GetProperty("profileurl").GetString() ?? "";
-            string avatarUrl = player.TryGetProperty("avatarfull", out var av) ? (av.GetString() ?? "") : "";
-
-            _store.UpsertLink(context.User.Id, (ulong)steamId64, personaName, profileUrl, avatarUrl);
+            _store.UpsertLink(
+                context.User.Id,
+                steamId64,
+                personaName,
+                profileUrl,
+                avatarUrl
+            );
 
             var embed = new DiscordEmbedBuilder()
                 .WithTitle($"Linked Steam profile: {personaName}")
@@ -98,3 +102,4 @@ namespace DisSteam.Commands
         }
     }
 }
+

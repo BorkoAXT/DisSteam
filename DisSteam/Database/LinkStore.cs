@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using DisSteam.Models;
+using Microsoft.Data.Sqlite;
 
 namespace DisSteam.Data
 {
@@ -95,7 +96,7 @@ ON CONFLICT(discord_user_id) DO UPDATE SET
             cmd.ExecuteNonQuery();
         }
 
-        public (string SteamId64, string PersonaName, string ProfileUrl, string AvatarUrl)? GetLink(ulong discordUserId)
+        public BasicSteamUser? GetLink(ulong discordUserId)
         {
             using var con = new SqliteConnection(_connString);
             con.Open();
@@ -116,7 +117,7 @@ LIMIT 1;";
             string purl = r.IsDBNull(2) ? "" : r.GetString(2);
             string aurl = r.IsDBNull(3) ? "" : r.GetString(3);
 
-            return (sid, pname, purl, aurl);
+            return new BasicSteamUser(sid, pname, purl, aurl);
         }
 
         public bool Unlink(ulong discordUserId)

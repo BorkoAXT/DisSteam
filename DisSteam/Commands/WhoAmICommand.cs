@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using DisSteam.Data;
+﻿using DisSteam.Data;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
@@ -9,26 +9,51 @@ namespace DisSteam.Commands
     {
         private static readonly LinkStore _store = new LinkStore("links.db");
 
-        [SlashCommand("whoami", "Shows you the steam profile you are linked to.")]
+        [SlashCommand("whoami", "Shows the Steam profile linked to your Discord account.")]
         public async Task WhoAmI(InteractionContext context)
         {
-            await context.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
+            await context.CreateResponseAsync(
+                DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
 
             var link = _store.GetLink(context.User.Id);
             if (link == null)
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder().WithContent("You have not linked a Steam account yet."));
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .WithContent("You have not linked a Steam account yet."));
                 return;
             }
 
             var embed = new DiscordEmbedBuilder()
-                .WithTitle($"Linked Steam profile: {link.Value.PersonaName}")
-                .WithUrl(string.IsNullOrWhiteSpace(link.Value.ProfileUrl) ? null : link.Value.ProfileUrl)
-                .WithThumbnail(string.IsNullOrWhiteSpace(link.Value.AvatarUrl) ? null : link.Value.AvatarUrl)
-                .AddField("SteamID64", link.Value.SteamId64, true)
+                .WithTitle("Found Steam profile")
+                .WithDescription(link.PersonaName)
+                .WithUrl(string.IsNullOrWhiteSpace(link.ProfileUrl) ? null : link.ProfileUrl)
+                .WithThumbnail(string.IsNullOrWhiteSpace(link.AvatarUrl) ? null : link.AvatarUrl)
+                .AddField("SteamID64", link.SteamId64, true)
                 .WithFooter($"Requested by {context.User.Username}");
 
-            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+            var steamProfileLink = new DiscordLinkButtonComponent(
+                url: link.ProfileUrl,
+                label: "Open Steam Profile",
+                disabled: string.IsNullOrWhiteSpace(link.ProfileUrl),
+                emoji: new DiscordComponentEmoji("🎮"));
+
+            var steamRepLink = new DiscordLinkButtonComponent(
+                url: $"https://steamladder.com/profile/{link.SteamId64}",
+                label: "View on SteamLadder",
+                disabled: false,
+                emoji: new DiscordComponentEmoji("🔍"));
+
+            var unlinkButton = new DiscordButtonComponent(
+                ButtonStyle.Danger,
+                customId: $"find:unlink:{context.User.Id}",
+                label: "Unlink (self)",
+                disabled: false,
+                emoji: new DiscordComponentEmoji("✖️"));
+
+            await context.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton).AddEmbed(embed));
+
+            await context.EditResponseAsync(
+                new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton).AddEmbed(embed));
         }
     }
 }
