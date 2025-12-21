@@ -69,7 +69,7 @@ namespace DisSteam.Handlers
 
 
             var embed = new DiscordEmbedBuilder()
-                .WithTitle($"Summary of Player {_store.GetLink(discordUserId).PersonaName}")
+                .WithTitle($"Summary of player {_store.GetLink(discordUserId).PersonaName}")
                 .WithImageUrl(data.AvatarUrl)
                 .AddField("Status", data.UserStatus.ToString())
                 .AddField(
