@@ -50,10 +50,14 @@ namespace DisSteam.Commands
                 disabled: false,
                 emoji: new DiscordComponentEmoji("✖️"));
 
-            await context.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton).AddEmbed(embed));
+            var infoButton = new DiscordButtonComponent(
+                ButtonStyle.Primary,
+                customId: $"find:info:{context.User.Id}",
+                label: "More info",
+                emoji: new DiscordComponentEmoji("ℹ️"));
 
             await context.EditResponseAsync(
-                new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton).AddEmbed(embed));
+                new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton, infoButton).AddEmbed(embed));
         }
     }
 }

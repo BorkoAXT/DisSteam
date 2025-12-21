@@ -58,7 +58,13 @@ namespace DisSteam.Commands
                     disabled: false,
                     emoji: new DiscordComponentEmoji("✖️"));
 
-                await context.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton).AddEmbed(embed));
+                var infoButton = new DiscordButtonComponent(
+                    ButtonStyle.Primary,
+                    customId: $"find:info:{user.Id}",
+                    label: "More info",
+                    emoji: new DiscordComponentEmoji("ℹ️"));
+
+                await context.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton, infoButton).AddEmbed(embed));
             }
             else
             {
@@ -82,7 +88,13 @@ namespace DisSteam.Commands
                     disabled: false,
                     emoji: new DiscordComponentEmoji("🔍"));
 
-                await context.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink).AddEmbed(embed));
+                var infoButton = new DiscordButtonComponent(
+                    ButtonStyle.Primary,
+                    customId: $"find:info:{user.Id}",
+                    label: "More info",
+                    emoji: new DiscordComponentEmoji("ℹ️"));
+
+                await context.EditResponseAsync(new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, infoButton).AddEmbed(embed));
             }
 
             

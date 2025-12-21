@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DisSteam.Commands;
+using DisSteam.Handlers;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -56,6 +57,7 @@ namespace DisSteam
             slash.RegisterCommands<UnlinkCommand>(guidId);
             slash.RegisterCommands<FindCommand>(guidId);
             UnlinkButtonHandler.Register(_client);
+            MoreInfoButtonHandler.Register(_client);
 
             await _client.ConnectAsync(_activity, UserStatus.Online);
 
