@@ -17,7 +17,9 @@ namespace DisSteam
         private static async Task OnComponentInteractionCreated(DiscordClient client, ComponentInteractionCreateEventArgs e)
         {
             if (!e.Id.StartsWith("find:unlink:", StringComparison.Ordinal))
+            {
                 return;
+            }
 
             var parts = e.Id.Split(':');
             if (parts.Length != 3 || !ulong.TryParse(parts[2], out var targetUserId))
@@ -27,6 +29,10 @@ namespace DisSteam
                     new DiscordInteractionResponseBuilder()
                         .WithContent("❌ Invalid button payload.")
                         .AsEphemeral());
+
+                await Task.Delay(5000);
+                await e.Message.DeleteAsync();
+
                 return;
             }
             if (e.User.Id != targetUserId)
@@ -36,6 +42,10 @@ namespace DisSteam
                     new DiscordInteractionResponseBuilder()
                         .WithContent("❌ You can only unlink your own Steam account.")
                         .AsEphemeral());
+
+                await Task.Delay(5000);
+                await e.Message.DeleteAsync();
+
                 return;
             }
             
@@ -48,6 +58,10 @@ namespace DisSteam
                         ? "✅ Your Steam account has been unlinked."
                         : "❌ You aren't linked to a steam account.")
                     .AsEphemeral());
+
+
+            await Task.Delay(5000);
+            await e.Message.DeleteAsync();
         }
     }
 }

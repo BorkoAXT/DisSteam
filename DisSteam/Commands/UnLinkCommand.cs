@@ -19,6 +19,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("You have no linked Steam account."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -26,6 +30,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("Failed to unlink your Steam account. Please try again."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -36,6 +44,9 @@ namespace DisSteam.Commands
 
             await context.EditResponseAsync(
                 new DiscordWebhookBuilder().AddEmbed(embed));
+
+            await Task.Delay(5000);
+            await context.DeleteResponseAsync();
         }
     }
 }

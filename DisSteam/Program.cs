@@ -58,6 +58,11 @@ namespace DisSteam
             slash.RegisterCommands<FindCommand>(guidId);
             UnlinkButtonHandler.Register(_client);
             MoreInfoButtonHandler.Register(_client);
+            ReturnButtonHandler.Register(_client);
+            AllGamesHandler.Register(_client);
+            AllAchievementsHandler.Register(_client);
+            AllFriendsHandler.Register(_client);
+            AllBadgesHandler.Register(_client);
 
             await _client.ConnectAsync(_activity, UserStatus.Online);
 

@@ -1,4 +1,5 @@
 ﻿using DisSteam.Data;
+using DisSteam.Views;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -13,51 +14,24 @@ namespace DisSteam.Commands
         public async Task WhoAmI(InteractionContext context)
         {
             await context.CreateResponseAsync(
-                DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
+                InteractionResponseType.DeferredChannelMessageWithSource);
 
             var link = _store.GetLink(context.User.Id);
             if (link == null)
             {
-                await context.EditResponseAsync(new DiscordWebhookBuilder()
-                    .WithContent("You have not linked a Steam account yet."));
+                await context.EditResponseAsync(
+                    new DiscordWebhookBuilder()
+                        .WithContent("You have not linked a Steam account yet."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
-            var embed = new DiscordEmbedBuilder()
-                .WithTitle("Found Steam profile")
-                .WithDescription(link.PersonaName)
-                .WithUrl(string.IsNullOrWhiteSpace(link.ProfileUrl) ? null : link.ProfileUrl)
-                .WithThumbnail(string.IsNullOrWhiteSpace(link.AvatarUrl) ? null : link.AvatarUrl)
-                .AddField("SteamID64", link.SteamId64, true)
-                .WithFooter($"Requested by {context.User.Username}");
-
-            var steamProfileLink = new DiscordLinkButtonComponent(
-                url: link.ProfileUrl,
-                label: "Open Steam Profile",
-                disabled: string.IsNullOrWhiteSpace(link.ProfileUrl),
-                emoji: new DiscordComponentEmoji("🎮"));
-
-            var steamRepLink = new DiscordLinkButtonComponent(
-                url: $"https://steamladder.com/profile/{link.SteamId64}",
-                label: "View on SteamLadder",
-                disabled: false,
-                emoji: new DiscordComponentEmoji("🔍"));
-
-            var unlinkButton = new DiscordButtonComponent(
-                ButtonStyle.Danger,
-                customId: $"find:unlink:{context.User.Id}",
-                label: "Unlink (self)",
-                disabled: false,
-                emoji: new DiscordComponentEmoji("✖️"));
-
-            var infoButton = new DiscordButtonComponent(
-                ButtonStyle.Primary,
-                customId: $"find:info:{context.User.Id}",
-                label: "More info",
-                emoji: new DiscordComponentEmoji("ℹ️"));
-
             await context.EditResponseAsync(
-                new DiscordWebhookBuilder().AddComponents(steamProfileLink, steamRepLink, unlinkButton, infoButton).AddEmbed(embed));
+                new DiscordWebhookBuilder(
+                    FindView.Build(context.User, context.User)));
         }
     }
 }

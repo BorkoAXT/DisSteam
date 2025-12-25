@@ -25,6 +25,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("Steam API key is not configured."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -32,6 +36,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("SteamID must be a number."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -39,6 +47,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("Invalid SteamID64."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -47,6 +59,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent($"You already linked SteamID64 `{existingSteamIdForUser}`."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -54,6 +70,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("That SteamID64 is already linked to another Discord user."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -69,6 +89,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("Steam request failed (network/API error)."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -76,6 +100,10 @@ namespace DisSteam.Commands
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent("No Steam user found with that SteamID64."));
+
+                await Task.Delay(5000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 
@@ -99,6 +127,9 @@ namespace DisSteam.Commands
                 .WithFooter($"Requested by {context.User.Username}");
 
             await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+
+            await Task.Delay(5000);
+            await context.DeleteResponseAsync();
         }
     }
 }

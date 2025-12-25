@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using RestSharp;
 using UserStatus = Steam.Models.SteamCommunity.UserStatus;
+using DisSteam.Views;
 
 namespace DisSteam.Handlers
 {
@@ -32,6 +33,18 @@ namespace DisSteam.Handlers
         private static async Task OnComponentInteractionCreated(DiscordClient client,
             ComponentInteractionCreateEventArgs e)
         {
+            if (e.Id.StartsWith("find:return:"))
+            {
+                var userId = ulong.Parse(e.Id.Split(':')[2]);
+                var targetUser = await client.GetUserAsync(userId);
+
+                await e.Interaction.CreateResponseAsync(
+                    InteractionResponseType.UpdateMessage,
+                    FindView.Build(e.User, targetUser));
+
+                return;
+            }
+
             var parts = e.Id.Split(":");
             ulong.TryParse(parts[2], out var discordUserId);
 
@@ -83,12 +96,41 @@ namespace DisSteam.Handlers
                 .AddField("Friends count: ", friends.Data.Count.ToString())
                 .AddField("Level: ", level.ToString());
 
+            var backToInfoButton = new DiscordButtonComponent(
+                ButtonStyle.Primary,
+                customId: $"find:return:{discordUserId}",
+                label: "Return To Info",
+                emoji: new DiscordComponentEmoji("🔙"));
+
+            var allGamesButton = new DiscordButtonComponent(
+                ButtonStyle.Secondary,
+                customId: $"allgames:{discordUserId}",
+                label: "All Games",
+                emoji: new DiscordComponentEmoji("🎮"));
+
+            var allAchievementsButton = new DiscordButtonComponent(
+                ButtonStyle.Secondary,
+                customId: $"allachievements:{discordUserId}",
+                label: "All Achievements",
+                emoji: new DiscordComponentEmoji("🏆"));
+
+            var allFriendsButton = new DiscordButtonComponent(
+                ButtonStyle.Secondary,
+                customId: $"allfriends:{discordUserId}",
+                label: "All Friends",
+                emoji: new DiscordComponentEmoji("👥"));
+
+            var allBadgesButton = new DiscordButtonComponent(
+                ButtonStyle.Secondary,
+                customId: $"allbadges:{discordUserId}",
+                label: "All Badges",
+                emoji: new DiscordComponentEmoji("🎖️"));
+
+
             await e.Interaction.CreateResponseAsync(
                 InteractionResponseType.UpdateMessage,
-                new DiscordInteractionResponseBuilder().AddEmbed(embed));
-
-
-
+                new DiscordInteractionResponseBuilder().AddEmbed(embed)
+                .AddComponents(backToInfoButton, allGamesButton, allAchievementsButton, allFriendsButton, allBadgesButton));
         }
     }
 }
