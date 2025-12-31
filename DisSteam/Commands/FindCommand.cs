@@ -22,6 +22,10 @@ namespace DisSteam.Commands
                 await context.EditResponseAsync(
                     new DiscordWebhookBuilder()
                         .WithContent("This user hasn't linked their Discord account with Steam."));
+
+                await Task.Delay(7000);
+                await context.DeleteResponseAsync();
+
                 return;
             }
 

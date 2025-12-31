@@ -96,15 +96,15 @@ namespace DisSteam.Handlers
                 .AddField("Friends count: ", friends.Data.Count.ToString())
                 .AddField("Level: ", level.ToString());
 
-            var backToInfoButton = new DiscordButtonComponent(
+            var backToProfileButton = new DiscordButtonComponent(
                 ButtonStyle.Primary,
                 customId: $"find:return:{discordUserId}",
-                label: "Return To Info",
+                label: "Return To Profile",
                 emoji: new DiscordComponentEmoji("🔙"));
 
             var allGamesButton = new DiscordButtonComponent(
                 ButtonStyle.Secondary,
-                customId: $"allgames:{discordUserId}",
+                customId: $"allgames:{discordUserId}:1",
                 label: "All Games",
                 emoji: new DiscordComponentEmoji("🎮"));
 
@@ -130,7 +130,7 @@ namespace DisSteam.Handlers
             await e.Interaction.CreateResponseAsync(
                 InteractionResponseType.UpdateMessage,
                 new DiscordInteractionResponseBuilder().AddEmbed(embed)
-                .AddComponents(backToInfoButton, allGamesButton, allAchievementsButton, allFriendsButton, allBadgesButton));
+                .AddComponents(backToProfileButton, allGamesButton, allAchievementsButton, allFriendsButton, allBadgesButton));
         }
     }
 }
