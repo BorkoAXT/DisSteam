@@ -60,7 +60,6 @@ namespace DisSteam
             MoreInfoButtonHandler.Register(_client);
             ReturnButtonHandler.Register(_client);
             AllGamesHandler.Register(_client);
-            AllAchievementsHandler.Register(_client);
             AllFriendsHandler.Register(_client);
             AllBadgesHandler.Register(_client);
 

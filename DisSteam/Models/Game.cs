@@ -4,10 +4,10 @@ namespace DisSteam.Models
 {
     public class Game {
         [JsonPropertyName("appid")] 
-        public int AppId { get; set; } 
+        public long AppId { get; set; } 
 
         
         [JsonPropertyName("playtime_forever")] 
-        public int PlayTime { get; set; } 
+        public long PlayTime { get; set; } 
     }
 }

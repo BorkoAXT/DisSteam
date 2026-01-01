@@ -87,7 +87,7 @@ namespace DisSteam.Handlers
 
                 string gameName = gameData.GetProperty("name").ToString();
 
-                int playtimeHours = game.PlayTime / 60;
+                long playtimeHours = game.PlayTime / 60;
 
                 // Get Achievements
                 RestRequest userGameAchievementsRequest = new RestRequest("https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/", Method.Get)

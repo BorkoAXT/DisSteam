@@ -108,29 +108,22 @@ namespace DisSteam.Handlers
                 label: "All Games",
                 emoji: new DiscordComponentEmoji("🎮"));
 
-            var allAchievementsButton = new DiscordButtonComponent(
-                ButtonStyle.Secondary,
-                customId: $"allachievements:{discordUserId}",
-                label: "All Achievements",
-                emoji: new DiscordComponentEmoji("🏆"));
-
             var allFriendsButton = new DiscordButtonComponent(
                 ButtonStyle.Secondary,
-                customId: $"allfriends:{discordUserId}",
+                customId: $"allfriends:{discordUserId}:1",
                 label: "All Friends",
                 emoji: new DiscordComponentEmoji("👥"));
 
             var allBadgesButton = new DiscordButtonComponent(
                 ButtonStyle.Secondary,
-                customId: $"allbadges:{discordUserId}",
+                customId: $"allbadges:{discordUserId}:1",
                 label: "All Badges",
                 emoji: new DiscordComponentEmoji("🎖️"));
-
 
             await e.Interaction.CreateResponseAsync(
                 InteractionResponseType.UpdateMessage,
                 new DiscordInteractionResponseBuilder().AddEmbed(embed)
-                .AddComponents(backToProfileButton, allGamesButton, allAchievementsButton, allFriendsButton, allBadgesButton));
+                .AddComponents(backToProfileButton, allGamesButton, allFriendsButton, allBadgesButton));
         }
     }
 }
