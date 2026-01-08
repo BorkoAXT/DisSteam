@@ -1,8 +1,8 @@
-﻿using DisSteam.Data;
-using DisSteam.Views;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DisSteam.Data;
+using DisSteam.Views;
 
 namespace DisSteam.Commands
 {

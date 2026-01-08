@@ -1,5 +1,4 @@
-﻿using DisSteam.Data;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using SteamWebAPI2.Interfaces;
@@ -11,6 +10,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using RestSharp;
 using UserStatus = Steam.Models.SteamCommunity.UserStatus;
+using DisSteam.Data;
 using DisSteam.Views;
 
 namespace DisSteam.Handlers

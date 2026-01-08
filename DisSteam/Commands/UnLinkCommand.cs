@@ -1,6 +1,6 @@
-﻿using DisSteam.Data;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DisSteam.Data;
 
 namespace DisSteam.Commands
 {

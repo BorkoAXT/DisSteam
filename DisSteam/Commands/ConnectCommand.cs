@@ -1,136 +1,52 @@
-﻿using DisSteam.Data;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Steam.Models.SteamCommunity;
-using SteamWebAPI2.Interfaces;
-using SteamWebAPI2.Utilities;
+using DisSteam.Data;
 
 namespace DisSteam.Commands
 {
     public sealed class ConnectCommand : ApplicationCommandModule
     {
         private static readonly LinkStore _store = new LinkStore("links.db");
-        private static readonly string? SteamAPIKey = Environment.GetEnvironmentVariable("STEAM_API_KEY");
-        private static readonly SteamWebInterfaceFactory _factory =
-            new SteamWebInterfaceFactory(SteamAPIKey);
 
-        [SlashCommand("connect", "Connects a discord account to a steam account")]
-        public async Task Connect(
-            InteractionContext context,
-            [Option("steamid", "Your SteamID64")] string steamId)
+        private static readonly string PublicUrl =
+            "https://suggestion-photographs-comparisons-happens.trycloudflare.com";
+
+        [SlashCommand("connect", "Connect your Discord account to your Steam account (verified via Steam login).")]
+        public async Task Connect(InteractionContext context)
         {
-            await context.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource);
-
-            if (string.IsNullOrWhiteSpace(SteamAPIKey))
-            {
-                await context.EditResponseAsync(new DiscordWebhookBuilder()
-                    .WithContent("Steam API key is not configured."));
-
-                await Task.Delay(5000);
-                await context.DeleteResponseAsync();
-
-                return;
-            }
-
-            if (!ulong.TryParse(steamId, out var steamId64))
-            {
-                await context.EditResponseAsync(new DiscordWebhookBuilder()
-                    .WithContent("SteamID must be a number."));
-
-                await Task.Delay(5000);
-                await context.DeleteResponseAsync();
-
-                return;
-            }
-
-            if (steamId64 < 76561190000000000UL)
-            {
-                await context.EditResponseAsync(new DiscordWebhookBuilder()
-                    .WithContent("Invalid SteamID64."));
-
-                await Task.Delay(5000);
-                await context.DeleteResponseAsync();
-
-                return;
-            }
+            await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
             var existingSteamIdForUser = _store.GetSteamId64(context.User.Id);
             if (existingSteamIdForUser != null)
             {
                 await context.EditResponseAsync(new DiscordWebhookBuilder()
                     .WithContent($"You already linked SteamID64 `{existingSteamIdForUser}`."));
-
                 await Task.Delay(5000);
                 await context.DeleteResponseAsync();
-
                 return;
             }
 
-            if (_store.SteamIdExists(steamId64.ToString()))
-            {
-                await context.EditResponseAsync(new DiscordWebhookBuilder()
-                    .WithContent("That SteamID64 is already linked to another Discord user."));
+            var state = Guid.NewGuid().ToString("N");
+            SteamOpenIdBridge.RegisterPending(state, context.User.Id);
 
-                await Task.Delay(5000);
-                await context.DeleteResponseAsync();
+            var link = $"{PublicUrl}/steam/start?state={state}";
 
-                return;
-            }
-
-            PlayerSummaryModel? summary;
-            try
-            {
-                var steamUser = _factory.CreateSteamWebInterface<SteamUser>(new HttpClient());
-                var resp = await steamUser.GetPlayerSummaryAsync(steamId64);
-
-                summary = resp?.Data;
-            }
-            catch (Exception)
-            {
-                await context.EditResponseAsync(new DiscordWebhookBuilder()
-                    .WithContent("Steam request failed (network/API error)."));
-
-                await Task.Delay(5000);
-                await context.DeleteResponseAsync();
-
-                return;
-            }
-
-            if (summary == null)
-            {
-                await context.EditResponseAsync(new DiscordWebhookBuilder()
-                    .WithContent("No Steam user found with that SteamID64."));
-
-                await Task.Delay(5000);
-                await context.DeleteResponseAsync();
-
-                return;
-            }
-
-            var personaName = string.IsNullOrWhiteSpace(summary.Nickname) ? "Unknown" : summary.Nickname;
-            var profileUrl = summary.ProfileUrl ?? string.Empty;
-            var avatarUrl = summary.AvatarFullUrl ?? string.Empty;
-
-            _store.UpsertLink(
-                context.User.Id,
-                steamId64,
-                personaName,
-                profileUrl,
-                avatarUrl
-            );
+            var btn = new DiscordLinkButtonComponent(link, "Sign in through Steam");
 
             var embed = new DiscordEmbedBuilder()
-                .WithTitle($"Linked Steam profile: {personaName}")
-                .WithUrl(string.IsNullOrWhiteSpace(profileUrl) ? null : profileUrl)
-                .WithThumbnail(string.IsNullOrWhiteSpace(avatarUrl) ? null : avatarUrl)
-                .AddField("SteamID64", steamId64.ToString(), true)
-                .WithFooter($"Requested by {context.User.Username}");
+                .WithTitle("Link Steam Account")
+                .WithDescription("Click the button below to sign in via Steam. After you finish, you can close the browser tab.")
+                .WithColor(DiscordColor.SpringGreen);
 
-            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+            await context.EditResponseAsync(new DiscordWebhookBuilder()
+                .AddEmbed(embed)
+                .AddComponents(btn));
 
             await Task.Delay(5000);
+
             await context.DeleteResponseAsync();
+
         }
     }
 }
-

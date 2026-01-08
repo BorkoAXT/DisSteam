@@ -1,6 +1,6 @@
-﻿using DisSteam.Data;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using DisSteam.Data;
 
 namespace DisSteam.Views
 {

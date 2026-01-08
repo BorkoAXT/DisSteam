@@ -1,7 +1,7 @@
-﻿using DisSteam.Data;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DisSteam.Data;
 
 namespace DisSteam
 {

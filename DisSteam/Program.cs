@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
-using DisSteam.Commands;
-using DisSteam.Handlers;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Newtonsoft.Json;
 using RestSharp;
+using DisSteam.Commands;
+using DisSteam.Handlers;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace DisSteam
@@ -22,10 +22,12 @@ namespace DisSteam
 
         private static string? _token;
 
-        private static ulong guidId = 1405637361014013982;
+        private static ulong guidId = 1458750358930063455;
         public static Dictionary<string, string> Connects { get; set; }
 
         private static DiscordActivity _activity;
+
+        private static SteamHttpServer _steamServer;
 
         private static InteractionType _interactionType;
 
@@ -48,7 +50,7 @@ namespace DisSteam
             };
             _client = new DiscordClient(_config);
 
-            _activity = new DiscordActivity("with Steam APIs!", ActivityType.Playing);
+            _activity = new DiscordActivity("With Steam's API!", ActivityType.Playing);
 
             var slash = _client.UseSlashCommands();
 
@@ -62,6 +64,17 @@ namespace DisSteam
             AllGamesHandler.Register(_client);
             AllFriendsHandler.Register(_client);
             AllBadgesHandler.Register(_client);
+
+            var publicUrl = "https://suggestion-photographs-comparisons-happens.trycloudflare.com";
+
+            var steamServer = new SteamHttpServer(
+                publicUrl,
+                async (state, steamId64) =>
+                {
+                    return await SteamOpenIdBridge.CompleteAsync(state, steamId64);
+                });
+
+            steamServer.Start();
 
             await _client.ConnectAsync(_activity, UserStatus.Online);
 

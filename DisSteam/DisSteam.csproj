@@ -13,7 +13,12 @@
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.1" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="RestSharp" Version="113.0.0" />
     <PackageReference Include="SteamWebAPI2" Version="5.0.0" />
   </ItemGroup>

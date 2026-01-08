@@ -1,5 +1,5 @@
-﻿using DisSteam.Models;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
+using DisSteam.Models;
 
 namespace DisSteam.Data
 {

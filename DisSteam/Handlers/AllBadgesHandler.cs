@@ -1,6 +1,4 @@
-﻿using DisSteam.Data;
-using DisSteam.Models;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using HtmlAgilityPack;
@@ -8,6 +6,8 @@ using RestSharp;
 using SteamWebAPI2.Interfaces;
 using SteamWebAPI2.Utilities;
 using System.Text.Json;
+using DisSteam.Data;
+using DisSteam.Models;
 
 namespace DisSteam.Handlers
 {
